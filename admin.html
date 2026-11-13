@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#2b1a23">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<title>Love Bank admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* The therapist's admin page: same wine, ivory and gold as the couples' app. A sign-in screen, then a form to add a couple and a list of couples. */
+:root{
+  --bg:#faf5f1;--surface:#ffffff;--surface-2:#f4ece6;--ink:#2b1a23;--ink-soft:#6f5c62;--line:#e8dcd4;
+  --band:#2b1a23;--band-ink:#f7f0e9;--band-soft:#cdbcb1;--gold:#c9a267;--accent:#8c3f55;--accent-ink:#ffffff;--accent-soft:#f6e9ec;
+  --good:#3a7a4c;--good-soft:#e3f1e6;--warn:#9a6a12;--warn-soft:#f8eed8;--bad:#b0383a;--bad-soft:#f9e3e2;
+  --font-display:"Cormorant Garamond",Georgia,"Times New Roman",serif;--font-body:"Karla","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1117;--surface:#251820;--surface-2:#2e1f28;--ink:#f3e9e3;--ink-soft:#b7a4a8;--line:#3d2b35;
+    --band:#13090e;--band-ink:#f7f0e9;--band-soft:#bfaea6;--gold:#d4ae72;--accent:#d27b96;--accent-ink:#1b1117;--accent-soft:#3a2230;
+    --good:#80c592;--good-soft:#1e3324;--warn:#e2b65f;--warn-soft:#3a2e17;--bad:#ef8c84;--bad-soft:#3d1f1f;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1b1117;--surface:#251820;--surface-2:#2e1f28;--ink:#f3e9e3;--ink-soft:#b7a4a8;--line:#3d2b35;
+  --band:#13090e;--band-ink:#f7f0e9;--band-soft:#bfaea6;--gold:#d4ae72;--accent:#d27b96;--accent-ink:#1b1117;--accent-soft:#3a2230;
+  --good:#80c592;--good-soft:#1e3324;--warn:#e2b65f;--warn-soft:#3a2e17;--bad:#ef8c84;--bad-soft:#3d1f1f;color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15.5px;line-height:1.55}
+h1,h2,h3{font-family:var(--font-display);font-weight:500;margin:0;text-wrap:balance}
+p{margin:0}
+button,input{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.muted{color:var(--ink-soft)}
+
+.gate{min-height:100vh;min-height:100dvh;background:var(--band);color:var(--band-ink);display:flex;align-items:center;justify-content:center;padding:32px 16px}
+.gate-in{width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
+.eyebrow{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.gate h1{font-weight:400;font-size:clamp(40px,11vw,56px);line-height:1}
+.gate p{color:var(--band-soft);font-size:15px}
+.gate form{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.gate label{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.gate input{font-size:16px;color:#2b1a23;background:#f7f0e9;border:1px solid var(--gold);border-radius:3px;padding:12px 13px;width:100%}
+.gate-err{color:#f2a3a3;font-size:14px;min-height:1.4em}
+.gate a{color:var(--gold)}
+.btn-gold{font-size:15px;font-weight:700;color:#2b1a23;background:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:12px 24px;cursor:pointer}
+
+.band{background:var(--band);color:var(--band-ink)}
+.band-in{max-width:980px;margin:0 auto;padding:clamp(24px,5vw,40px) 16px;display:flex;flex-wrap:wrap;gap:14px 30px;align-items:flex-end;justify-content:space-between}
+.band h1{font-weight:400;font-size:clamp(34px,7vw,50px);line-height:1;margin-top:10px}
+.band .sub{color:var(--band-soft);max-width:56ch;margin-top:10px}
+.band-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-line{font-size:14px;font-weight:700;color:var(--gold);background:transparent;border:1px solid var(--gold);border-radius:3px;padding:9px 16px;cursor:pointer}
+.btn-line:hover{color:var(--band-ink);border-color:var(--band-ink)}
+
+.wrap{max-width:980px;margin:0 auto;padding:26px 16px 80px;display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px clamp(16px,3vw,24px)}
+.panel h2{font-size:clamp(24px,4.4vw,29px);line-height:1.15;margin-bottom:6px}
+.panel-intro{color:var(--ink-soft);font-size:14.5px;max-width:70ch;margin-bottom:16px}
+.notice{border:1px solid var(--accent);background:var(--accent-soft);border-radius:4px;padding:11px 14px;font-size:14.5px}
+.notice.ok{border-color:var(--good);background:var(--good-soft)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px 16px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.grid{align-items:start}
+.field label{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;min-height:2.7em;display:flex;align-items:flex-end}
+.c-form .field label{min-height:0}
+.field input{font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:9px 11px;width:100%;min-width:0}
+.field .hint{font-size:12.5px;color:var(--ink-soft)}
+.pw-row{display:flex;gap:6px}
+.pw-row input{flex:1}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.btn-accent{font-size:15px;font-weight:700;color:var(--accent-ink);background:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:10px 20px;cursor:pointer}
+.btn-sub{background:var(--surface);border:1px solid var(--line);border-radius:3px;color:var(--ink);font-size:13.5px;font-weight:700;padding:8px 12px;cursor:pointer}
+.btn-sub:hover{border-color:var(--accent);color:var(--accent)}
+.btn-link{background:none;border:1px solid var(--line);border-radius:3px;color:var(--ink);font-size:13px;font-weight:700;padding:6px 11px;cursor:pointer}
+.btn-link:hover{border-color:var(--accent);color:var(--accent)}
+.btn-link.danger{color:var(--bad)}
+button[disabled]{opacity:.55;cursor:default}
+.msg{font-size:14px;color:var(--ink-soft)}
+.msg.err{color:var(--bad)}
+
+.creds{border:1px dashed var(--gold);background:var(--surface-2);border-radius:6px;padding:14px 16px;margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.creds h3{font-size:21px}
+.creds dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-size:15px}
+.creds dt{color:var(--ink-soft)}
+.creds dd{margin:0;font-weight:700;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+
+.couples{display:flex;flex-direction:column}
+.couple{border-top:1px solid var(--line);padding:16px 0;display:flex;flex-direction:column;gap:10px}
+.couple:first-child{border-top:0;padding-top:4px}
+.c-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.c-names{font-family:var(--font-display);font-size:25px;font-weight:600;line-height:1.15}
+.c-code{font-size:13.5px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px}
+.chip.on{color:var(--good);background:var(--good-soft)}
+.chip.off{color:var(--warn);background:var(--warn-soft)}
+.c-stats{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--ink-soft)}
+.c-stats strong{color:var(--ink)}
+.c-btns{display:flex;flex-wrap:wrap;gap:6px}
+.c-form{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.c-form p{font-size:14px}
+details summary{cursor:pointer;font-family:var(--font-display);font-size:24px}
+details[open] summary{margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<section class="gate" id="gate" hidden>
+  <div class="gate-in">
+    <p class="eyebrow">Therapist sign-in</p>
+    <h1>Love Bank admin</h1>
+    <p>For managing the couples who use Love Bank. You'll need to sign in again each time you open the browser.</p>
+    <form id="gate-form" novalidate>
+      <label for="gate-pw">Admin password</label>
+      <input type="password" id="gate-pw" autocomplete="current-password" required>
+      <button type="submit" class="btn-gold" id="gate-btn">Sign in</button>
+      <p class="gate-err" id="gate-err" role="alert"></p>
+    </form>
+    <p><a href="./">Couples sign in here</a></p>
+  </div>
+</section>
+
+<div id="app" hidden>
+<header class="band">
+  <div class="band-in">
+    <div>
+      <p class="eyebrow">Therapist admin</p>
+      <h1>Love Bank</h1>
+      <p class="sub">Add couples, give them their sign-in, and open any couple's space to see what they've entered. What you open is read-only: you can't change a couple's entries.</p>
+    </div>
+    <div class="band-btns">
+      <button type="button" class="btn-line" id="refresh">Refresh</button>
+      <button type="button" class="btn-line" id="sign-out">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="notice" id="notice" hidden></div>
+
+  <section class="panel">
+    <h2>Add a couple</h2>
+    <p class="panel-intro">Each couple shares one sign-in: a couple code and a password. Give them both, along with the link. Their sign-in screen tells them you can see what they enter.</p>
+    <form id="add-form" novalidate>
+      <div class="grid">
+        <div class="field"><label for="a-name1">First partner's first name</label><input id="a-name1" maxlength="40" autocomplete="off"></div>
+        <div class="field"><label for="a-name2">Second partner's first name</label><input id="a-name2" maxlength="40" autocomplete="off"></div>
+        <div class="field"><label for="a-code">Couple code</label><input id="a-code" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false"><span class="hint">Lower-case letters, numbers and dashes. They type this to sign in.</span></div>
+        <div class="field"><label for="a-pw">Password</label><div class="pw-row"><input id="a-pw" maxlength="100" autocomplete="off" spellcheck="false"><button type="button" class="btn-sub" id="a-gen">Suggest</button></div><span class="hint">At least 8 characters.</span></div>
+      </div>
+      <div class="row">
+        <button type="submit" class="btn-accent" id="a-save">Add couple</button>
+        <p class="msg" id="a-msg" role="status"></p>
+      </div>
+    </form>
+    <div id="creds"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Couples</h2>
+    <p class="panel-intro" id="list-intro">Loading…</p>
+    <div class="couples" id="couples"></div>
+  </section>
+
+  <section class="panel">
+    <details id="pw-details">
+      <summary>Change the admin password</summary>
+      <form id="pw-form" novalidate>
+        <div class="grid">
+          <div class="field"><label for="p-old">Current password</label><input type="password" id="p-old" autocomplete="current-password"></div>
+          <div class="field"><label for="p-new">New password</label><input type="password" id="p-new" autocomplete="new-password"><span class="hint">At least 10 characters.</span></div>
+        </div>
+        <div class="row">
+          <button type="submit" class="btn-accent" id="p-save">Change password</button>
+          <p class="msg" id="p-msg" role="status"></p>
+        </div>
+      </form>
+    </details>
+  </section>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SB_URL = "https://ktfkvvopmaptqgyvxwrs.supabase.co";
+  var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0Zmt2dm9wbWFwdHFneXZ4d3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1ODcyMzMsImV4cCI6MjExMDE2MzIzM30.QpO_r9Hm1Nb0_4ZShq5eHML6hwAOAW8v_M3YWKjbyLQ";
+  /* The admin session lives in sessionStorage: it ends when the tab or browser closes. */
+  var ADMIN_KEY = "lbp-admin", VIEW_KEY = "lbp-viewer";
+  var token = null, sb = null, couples = [], open = {}, lastCreds = null;
+  try { token = sessionStorage.getItem(ADMIN_KEY); } catch(e){}
+
+  function $(id){ return document.getElementById(id); }
+  function h(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+  function fmt(s){ if(!s) return "never"; var d = new Date(s); return isNaN(d.getTime()) ? "never" : d.toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"}); }
+  function fmtDay(s){ var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || "")); return m ? new Date(+m[1], +m[2]-1, +m[3]).toLocaleDateString(undefined, {day:"numeric", month:"short"}) : "none"; }
+  function siteUrl(){ return location.href.replace(/admin\.html.*$/, ""); }
+  function note(msg, ok){ var n = $("notice"); n.textContent = msg || ""; n.className = "notice" + (ok ? " ok" : ""); n.hidden = !msg; }
+  function errText(e){
+    var m = String((e && e.message) || "");
+    if(/not_signed_in/.test(m)){ setTimeout(lock, 1200); return "Your admin session has ended. Sign in again."; }
+    if(/code_taken/.test(m)) return "That couple code is already in use. Pick another.";
+    if(/bad_code/.test(m)) return "The couple code needs 3 to 40 lower-case letters, numbers or dashes, starting with a letter or number.";
+    if(/bad_name/.test(m)) return "Enter a first name for each partner (up to 40 characters).";
+    if(/password_too_short/.test(m)) return "That password is too short.";
+    if(/wrong_password/.test(m)) return "The current password isn't right.";
+    if(/code_mismatch/.test(m)) return "The code you typed doesn't match this couple.";
+    if(/not_found/.test(m)) return "That couple no longer exists.";
+    return "That didn't work. Check your connection and try again.";
+  }
+  function suggestPassword(){
+    var words = ["amber","birch","cedar","coral","dawn","ember","fern","harbor","iris","juniper","lark","maple","meadow","olive","pearl","quill","river","sage","thistle","willow"];
+    var r = new Uint32Array(3); crypto.getRandomValues(r);
+    return words[r[0] % words.length] + "-" + words[r[1] % words.length] + "-" + (100 + r[2] % 900);
+  }
+  function slug(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function showCreds(box, c, pw, title){
+    box.innerHTML = "";
+    var w = h("div", "creds");
+    w.appendChild(h("h3", null, title));
+    var dl = h("dl");
+    [["Link", siteUrl()], ["Couple code", c.code], ["Password", pw]].forEach(function(x){ dl.appendChild(h("dt", null, x[0])); dl.appendChild(h("dd", null, x[1])); });
+    w.appendChild(dl);
+    var row = h("div", "row"); row.style.marginTop = "4px";
+    var copy = h("button", "btn-sub", "Copy to send"); copy.type = "button";
+    copy.addEventListener("click", function(){
+      var text = "Love Bank\n" + siteUrl() + "\nCouple code: " + c.code + "\nPassword: " + pw;
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function(){ copy.textContent = "Copied"; }, function(){ copy.textContent = "Couldn't copy: select the text above"; });
+    });
+    row.appendChild(copy);
+    row.appendChild(h("span", "msg", "The password isn't shown again after you leave this page."));
+    w.appendChild(row);
+    box.appendChild(w);
+  }
+
+  function load(){
+    $("list-intro").textContent = "Loading…";
+    sb.rpc("lb_admin_couples", { p_token:token }).then(function(res){
+      if(res.error){ $("list-intro").textContent = errText(res.error); return; }
+      couples = res.data || [];
+      render();
+    }, function(){ $("list-intro").textContent = "Couldn't reach the server. Check your connection."; });
+  }
+  function render(){
+    var box = $("couples"); box.innerHTML = "";
+    var active = couples.filter(function(c){ return c.active; }).length;
+    $("list-intro").textContent = couples.length ? couples.length + " couple" + (couples.length === 1 ? "" : "s") + ", " + active + " active." : "No couples yet. Add the first one above.";
+    couples.forEach(function(c){
+      var el = h("div", "couple");
+      var head = h("div", "c-head");
+      head.appendChild(h("span", "c-names", c.name_a + " & " + c.name_b));
+      head.appendChild(h("span", "c-code", "code: " + c.code));
+      head.appendChild(h("span", "chip " + (c.active ? "on" : "off"), c.active ? "Active" : "Paused"));
+      el.appendChild(head);
+      var st = h("div", "c-stats");
+      function stat(label, value){ var s = h("span"); s.appendChild(document.createTextNode(label + " ")); s.appendChild(h("strong", null, String(value))); st.appendChild(s); }
+      stat("Added", fmt(c.created_at)); stat("Last sign-in", fmt(c.last_login));
+      stat("Check-ins", c.checkins + (c.last_checkin ? " (latest " + fmtDay(c.last_checkin) + ")" : ""));
+      stat("Love notes", c.notes); stat("Talks", c.talks); stat("Fondness days", c.fond_done); stat("Stuck-issue talks", c.unders); stat("Repair talks", c.repairs);
+      el.appendChild(st);
+
+      var btns = h("div", "c-btns");
+      function btn(label, fn, cls){ var b = h("button", "btn-link" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", fn); btns.appendChild(b); return b; }
+      btn("Open (read-only)", function(){
+        sb.rpc("lb_admin_view", { p_token:token, p_id:c.id }).then(function(res){
+          if(res.error || !res.data){ note(errText(res.error)); return; }
+          try { sessionStorage.setItem(VIEW_KEY, JSON.stringify(res.data)); } catch(e){ note("This browser is blocking session storage, so the couple's space can't be opened."); return; }
+          location.href = "./";
+        }, function(){ note(errText(null)); });
+      });
+      btn("Reset password", function(){ open[c.id] = open[c.id] === "pw" ? null : "pw"; render(); });
+      btn("Rename", function(){ open[c.id] = open[c.id] === "name" ? null : "name"; render(); });
+      btn(c.active ? "Pause" : "Resume", function(){
+        sb.rpc("lb_admin_couple_update", { p_token:token, p_id:c.id, p_name_a:c.name_a, p_name_b:c.name_b, p_active:!c.active }).then(function(res){
+          if(res.error){ note(errText(res.error)); return; }
+          note(c.active ? c.name_a + " & " + c.name_b + " are paused. They've been signed out and can't sign in until you resume them. Their data is kept." : c.name_a + " & " + c.name_b + " can sign in again.", true);
+          load();
+        }, function(){ note(errText(null)); });
+      });
+      btn("Delete", function(){ open[c.id] = open[c.id] === "del" ? null : "del"; render(); }, "danger");
+      el.appendChild(btns);
+
+      if(open[c.id] === "pw"){
+        var f = h("div", "c-form");
+        f.appendChild(h("p", null, "Set a new password for " + c.name_a + " & " + c.name_b + ". They'll be signed out everywhere and will need the new one."));
+        var pr = h("div", "pw-row"); var inp = document.createElement("input"); inp.maxLength = 100; inp.autocomplete = "off"; inp.spellcheck = false; inp.setAttribute("aria-label", "New password");
+        inp.style.cssText = "font-size:16px;padding:9px 11px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);min-width:0";
+        var gen = h("button", "btn-sub", "Suggest"); gen.type = "button"; gen.addEventListener("click", function(){ inp.value = suggestPassword(); });
+        pr.appendChild(inp); pr.appendChild(gen); f.appendChild(pr);
+        var m = h("p", "msg"); var out = h("div");
+        var go = h("button", "btn-accent", "Set password"); go.type = "button";
+        go.addEventListener("click", function(){
+          var pw = inp.value;
+          if(pw.length < 8){ m.textContent = "Use at least 8 characters."; m.className = "msg err"; return; }
+          go.disabled = true;
+          sb.rpc("lb_admin_couple_password", { p_token:token, p_id:c.id, p_password:pw }).then(function(res){
+            go.disabled = false;
+            if(res.error){ m.textContent = errText(res.error); m.className = "msg err"; return; }
+            m.textContent = ""; inp.value = "";
+            showCreds(out, c, pw, "New sign-in for " + c.name_a + " & " + c.name_b);
+          }, function(){ go.disabled = false; m.textContent = errText(null); m.className = "msg err"; });
+        });
+        var r1 = h("div", "row"); r1.style.marginTop = "0"; r1.appendChild(go); r1.appendChild(m); f.appendChild(r1); f.appendChild(out);
+        el.appendChild(f);
+      }
+      if(open[c.id] === "name"){
+        var f2 = h("div", "c-form");
+        var g = h("div", "grid");
+        function nameField(label, val){ var w = h("div", "field"); var l = h("label", null, label); var i = document.createElement("input"); i.maxLength = 40; i.value = val; i.id = "rn-" + c.id + "-" + label.length; l.htmlFor = i.id; w.appendChild(l); w.appendChild(i); g.appendChild(w); return i; }
+        var n1 = nameField("First partner", c.name_a), n2 = nameField("Second partner", c.name_b);
+        f2.appendChild(g);
+        f2.appendChild(h("p", "muted", "Renaming keeps each partner's entries where they are: swap the names only if they were entered the wrong way round."));
+        var m2 = h("p", "msg");
+        var go2 = h("button", "btn-accent", "Save names"); go2.type = "button";
+        go2.addEventListener("click", function(){
+          go2.disabled = true;
+          sb.rpc("lb_admin_couple_update", { p_token:token, p_id:c.id, p_name_a:n1.value, p_name_b:n2.value, p_active:null }).then(function(res){
+            go2.disabled = false;
+            if(res.error){ m2.textContent = errText(res.error); m2.className = "msg err"; return; }
+            open[c.id] = null; note("Names updated.", true); load();
+          }, function(){ go2.disabled = false; m2.textContent = errText(null); m2.className = "msg err"; });
+        });
+        var r2 = h("div", "row"); r2.style.marginTop = "0"; r2.appendChild(go2); r2.appendChild(m2); f2.appendChild(r2);
+        el.appendChild(f2);
+      }
+      if(open[c.id] === "del"){
+        var f3 = h("div", "c-form");
+        f3.appendChild(h("p", null, "This permanently deletes " + c.name_a + " & " + c.name_b + " and everything they've entered: check-ins, love notes, talks and exercises. It can't be undone. To keep their data but stop access, use Pause."));
+        var w3 = h("div", "field"); var l3 = h("label", null, "Type their couple code to confirm: " + c.code); var i3 = document.createElement("input"); i3.id = "del-" + c.id; l3.htmlFor = i3.id; i3.autocomplete = "off"; i3.autocapitalize = "none"; i3.spellcheck = false; w3.appendChild(l3); w3.appendChild(i3); f3.appendChild(w3);
+        var m3 = h("p", "msg");
+        var go3 = h("button", "btn-link danger", "Delete permanently"); go3.type = "button";
+        go3.addEventListener("click", function(){
+          if(i3.value.trim().toLowerCase() !== c.code){ m3.textContent = "That doesn't match the couple code."; m3.className = "msg err"; return; }
+          go3.disabled = true;
+          sb.rpc("lb_admin_couple_delete", { p_token:token, p_id:c.id, p_code:i3.value }).then(function(res){
+            go3.disabled = false;
+            if(res.error){ m3.textContent = errText(res.error); m3.className = "msg err"; return; }
+            open[c.id] = null; note(c.name_a + " & " + c.name_b + " and all their data have been deleted.", true); load();
+          }, function(){ go3.disabled = false; m3.textContent = errText(null); m3.className = "msg err"; });
+        });
+        var r3 = h("div", "row"); r3.style.marginTop = "0"; r3.appendChild(go3); r3.appendChild(m3); f3.appendChild(r3);
+        el.appendChild(f3);
+      }
+      box.appendChild(el);
+    });
+  }
+
+  function unlock(){ $("gate").hidden = true; $("app").hidden = false; load(); }
+  function lock(){
+    token = null; try { sessionStorage.removeItem(ADMIN_KEY); sessionStorage.removeItem(VIEW_KEY); } catch(e){}
+    couples = []; open = {}; $("creds").innerHTML = ""; note("");
+    $("app").hidden = true; $("gate").hidden = false; $("gate-pw").value = "";
+    setTimeout(function(){ try { $("gate-pw").focus(); } catch(e){} }, 0);
+  }
+
+  $("gate-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var pw = $("gate-pw").value, err = $("gate-err"), btn = $("gate-btn");
+    if(!pw){ err.textContent = "Enter the admin password."; return; }
+    btn.disabled = true; err.textContent = "";
+    sb.rpc("lb_admin_login", { p_password:pw }).then(function(res){
+      btn.disabled = false;
+      if(res.error){
+        var m = String(res.error.message || "");
+        err.textContent = /too_many_attempts/.test(m) ? "Too many wrong tries. Wait 15 minutes and try again."
+          : /not_set_up/.test(m) ? "The admin password hasn't been set yet." : "Couldn't check the password. Try again in a moment.";
+        return;
+      }
+      if(!res.data){ err.textContent = "That isn't the admin password."; $("gate-pw").select(); return; }
+      token = res.data; try { sessionStorage.setItem(ADMIN_KEY, token); } catch(e2){}
+      unlock();
+    }, function(){ btn.disabled = false; err.textContent = "Couldn't reach the server. Check your connection."; });
+  });
+  $("sign-out").addEventListener("click", function(){
+    var t = token; lock();
+    if(t) sb.rpc("lb_admin_logout", { p_token:t }).then(function(){}, function(){});
+  });
+  $("refresh").addEventListener("click", function(){ note(""); load(); });
+
+  /* add a couple */
+  var codeTouched = false;
+  function autoCode(){
+    if(codeTouched) return;
+    var a = slug($("a-name1").value), b = slug($("a-name2").value);
+    $("a-code").value = a && b ? (a + "-" + b).slice(0, 40) : "";
+  }
+  $("a-name1").addEventListener("input", autoCode); $("a-name2").addEventListener("input", autoCode);
+  $("a-code").addEventListener("input", function(){ codeTouched = !!this.value; });
+  $("a-gen").addEventListener("click", function(){ $("a-pw").value = suggestPassword(); });
+  $("add-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var n1 = $("a-name1").value.trim(), n2 = $("a-name2").value.trim(), code = $("a-code").value.trim().toLowerCase(), pw = $("a-pw").value, m = $("a-msg"), btn = $("a-save");
+    function bad(t, id){ m.textContent = t; m.className = "msg err"; try { $(id).focus(); } catch(e2){} }
+    if(!n1) return bad("Enter the first partner's first name.", "a-name1");
+    if(!n2) return bad("Enter the second partner's first name.", "a-name2");
+    if(!/^[a-z0-9][a-z0-9-]{2,39}$/.test(code)) return bad("The couple code needs 3 to 40 lower-case letters, numbers or dashes.", "a-code");
+    if(pw.length < 8) return bad("Use a password of at least 8 characters.", "a-pw");
+    btn.disabled = true; m.textContent = "Adding…"; m.className = "msg";
+    sb.rpc("lb_admin_couple_create", { p_token:token, p_code:code, p_name_a:n1, p_name_b:n2, p_password:pw }).then(function(res){
+      btn.disabled = false;
+      if(res.error){ m.textContent = errText(res.error); m.className = "msg err"; return; }
+      m.textContent = "";
+      showCreds($("creds"), { code:code }, pw, "Sign-in for " + n1 + " & " + n2);
+      $("add-form").reset(); codeTouched = false;
+      load();
+    }, function(){ btn.disabled = false; m.textContent = errText(null); m.className = "msg err"; });
+  });
+
+  /* change the admin password */
+  $("pw-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var o = $("p-old").value, n = $("p-new").value, m = $("p-msg"), btn = $("p-save");
+    if(n.length < 10){ m.textContent = "Use at least 10 characters for the new password."; m.className = "msg err"; return; }
+    btn.disabled = true; m.textContent = ""; m.className = "msg";
+    sb.rpc("lb_admin_change_password", { p_token:token, p_old:o, p_new:n }).then(function(res){
+      btn.disabled = false;
+      if(res.error){ m.textContent = errText(res.error); m.className = "msg err"; return; }
+      $("pw-form").reset(); m.textContent = "Password changed."; m.className = "msg";
+    }, function(){ btn.disabled = false; m.textContent = errText(null); m.className = "msg err"; });
+  });
+
+  if(!window.supabase || !window.supabase.createClient){
+    $("gate").hidden = false; $("gate-err").textContent = "The page couldn't load properly. Check your connection and reload."; return;
+  }
+  sb = window.supabase.createClient(SB_URL, SB_KEY, { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } });
+  /* Coming back from a couple's space: drop the viewing session so it can't be reused. */
+  try { sessionStorage.removeItem(VIEW_KEY); } catch(e){}
+  if(token) unlock(); else lock();
+})();
+</script>
+</body>
+</html>
